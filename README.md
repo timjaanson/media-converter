@@ -7,7 +7,8 @@ Based on jrottenberg/ffmpeg Docker container. Includes ffmpeg and ImageMagick wi
 
 ## Manual
 Manually specifying converting application means you need to use the argument format of the application.
-You need to specify the application by setting the correct env variable value during docker run: `-e APPLICATION=&lt;application name&gt;`
+
+You need to specify the application by setting the correct env variable value during docker run: `-e APPLICATION=<application name>`
 
 ### ffmpeg
 * Convert all files in current working directory to mp4 using ffmpeg
