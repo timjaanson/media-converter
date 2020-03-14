@@ -1,0 +1,73 @@
+#!/bin/bash
+set -e
+set -u
+set -o pipefail
+if [ -v setX ]; then
+  set -x
+fi
+
+INPUT_DIR=/input/
+OUTPUT_DIR=/output/
+
+
+debug() {
+  if [ -v CONVERTER_DEBUG ]; then
+    echo "DEBUG: $@"
+  fi
+}
+
+help () {
+cat << EOF
+A bash script to interface applications in timjaanson/media-converter docker container
+EOF
+}
+
+parse_arguments() {
+  while getopts 'a:h' OPTION; do
+    case "$OPTION" in
+      a)
+        APPLICATION="$OPTARG"
+        ;;
+
+      h)
+        help
+        exit 1
+        ;;
+
+      ?)
+        echo "see '$(basename $0) -h' for help"
+        exit 1
+        ;;
+        
+    esac
+  done
+  shift "$(($OPTIND -1))"
+}
+
+direct_convert_no_parsing() {
+  for file in $INPUT_DIR*; do
+    if [ -f "$file" ]; then
+      FILENAME_AND_TYPE=$(basename "$file")
+      FILENAME=`echo "$FILENAME_AND_TYPE" | cut -d'.' -f1`
+      
+      ARGS=${ARGS//INPUT_FILE/$file}
+      ARGS=${ARGS//OUTPUT_FILE/$OUTPUT_DIR$FILENAME}
+      debug $CONVERTER $ARGS
+      $CONVERTER $ARGS  
+    fi
+  done
+}
+
+
+if [ -v CONVERTER ]; then
+  debug "Converting application is manually set to $CONVERTER"
+  ARGS="$@"
+  direct_convert_no_parsing
+
+  mkdir -p ${INPUT_DIR}output
+  mv $OUTPUT_DIR* ${INPUT_DIR}output
+else
+  debug "Converting application not set with env variable CONVERTER"
+  debug "parsing arguments..."
+  parse_arguments
+fi
