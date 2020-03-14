@@ -9,7 +9,6 @@ fi
 INPUT_DIR=/input/
 OUTPUT_DIR=/output/
 
-
 debug() {
   if [ -v CONVERTER_DEBUG ]; then
     echo "DEBUG: $@"
@@ -49,25 +48,24 @@ direct_convert_no_parsing() {
     if [ -f "$file" ]; then
       FILENAME_AND_TYPE=$(basename "$file")
       FILENAME=`echo "$FILENAME_AND_TYPE" | cut -d'.' -f1`
-      
       ARGS=${ARGS//INPUT_FILE/$file}
       ARGS=${ARGS//OUTPUT_FILE/$OUTPUT_DIR$FILENAME}
-      debug $CONVERTER $ARGS
-      $CONVERTER $ARGS  
+      debug $APPLICATION $ARGS
+      $APPLICATION $ARGS  
     fi
   done
 }
 
 
-if [ -v CONVERTER ]; then
-  debug "Converting application is manually set to $CONVERTER"
+if [ -v APPLICATION ]; then
+  debug "Converting application is manually set to $APPLICATION"
   ARGS="$@"
   direct_convert_no_parsing
 
   mkdir -p ${INPUT_DIR}output
   mv $OUTPUT_DIR* ${INPUT_DIR}output
 else
-  debug "Converting application not set with env variable CONVERTER"
+  debug "Converting application not set with env variable APPLICATION"
   debug "parsing arguments..."
   parse_arguments
 fi
