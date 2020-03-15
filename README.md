@@ -52,11 +52,13 @@ docker run --rm -it \
 
 # Environment variables
 * APPLICATION
+
 Specifying the APPLICATION variable sets which application to use.
 
 All arguments supplied after the name of the docker image are directly passed to the application.
 
 * NO_BATCH
+
 Disables batch conversion. Meant for single file operations.
 
 With this ENV variable enabled, you need to specify the full path and filename for both input and output files.
@@ -67,9 +69,11 @@ There's two ENV variables to help with debugging.
 To use either, set the ENV variable to any value when executing `docker run`.
 
 * CONVERTER_DEBUG=1
+
 Enables debug messages
 
 * CONVERTER_DEBUG_SET_X=1
+
 Enables `set -x` in the shell script.
 
 This will print all commands to STDOUT before executing.
