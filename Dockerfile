@@ -9,7 +9,5 @@ WORKDIR /converter
 
 RUN chmod +x interface
 
-WORKDIR /output
-
 CMD ["-h"]
 ENTRYPOINT ["/converter/interface"]
