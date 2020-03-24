@@ -5,6 +5,15 @@ Based on jrottenberg/ffmpeg Docker container. Includes ffmpeg and ImageMagick wi
 
 # Run examples
 
+## Output
+By default converted files will be saved to a directory called "output" in the mounted volume.
+
+To save the files to a different location, mount another volume to the container's "/output" directory:
+
+  `-v /tmp:/output`
+
+In the above example all converted files will be saved to /tmp on the host machine
+
 ## Manual mode
 Manually specifying converting application means you need to use the argument format of the application.
 
@@ -51,13 +60,14 @@ docker run --rm -it \
 ```
 
 # Environment variables
-* APPLICATION
+* `APPLICATION=application name`
 
 Specifying the APPLICATION variable sets which application to use.
 
-All arguments supplied after the name of the docker image are directly passed to the application.
+All arguments supplied after the name of the docker image are directly passed to the application. See examples under section "Manual mode"
 
-* NO_BATCH
+
+* `NO_BATCH=1`
 
 Disables batch conversion. Meant for single file operations.
 
@@ -66,13 +76,14 @@ See ffmpeg example with NO_BATCH enabled
 
 ## Debugging
 There's two ENV variables to help with debugging. 
-To use either, set the ENV variable to any value when executing `docker run`.
+To use either, set the ENV variable to any value when executing docker run.
 
-* CONVERTER_DEBUG=1
+* `CONVERTER_DEBUG=1`
 
 Enables debug messages
 
-* CONVERTER_DEBUG_SET_X=1
+
+* `CONVERTER_DEBUG_SET_X=1`
 
 Enables `set -x` in the shell script.
 

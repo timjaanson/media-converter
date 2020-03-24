@@ -24,7 +24,44 @@ debug() {
 
 help () {
 cat << EOF
-A bash script to interface applications in timjaanson/media-converter docker container
+Docker container and shell script wrapper for batch converting various types of media files.
+Uses ffmpeg, ImageMagick and common cli tools for converting.
+
+See README.md for help and more examples!
+
+Output:
+By default converted files will be saved to a directory called "output" in the mounted volume.
+To save the files to a different location, mount another volume to the container's "/output" directory:
+  -v /tmp:/output
+In the above example all converted files will be saved to /tmp on the host machine
+
+EXAMPLES:
+
+Video: Convert all files in current working directory to mp4 using ffmpeg
+    docker run --rm \
+      -e APPLICATION=ffmpeg \
+      -v $(pwd):/input \
+      timjaanson/media-converter \
+      -i INPUT_FILE OUTPUT_FILE.mp4
+
+Image: Convert all files in current working directory to png using ImageMagick's convert binary
+    docker run --rm \
+      -e APPLICATION=convert \
+      -v $(pwd):/input \
+      timjaanson/media-converter \
+      INPUT_FILE OUTPUT_FILE.png
+
+base64: Convert all files in current working directory to base64 using linux cli tools
+    docker run --rm \
+      -e APPLICATION=b64 \
+      -v $(pwd):/input \
+      timjaanson/media-converter \
+      INPUT_FILE OUTPUT_FILE.png
+
+interactive: Doesn't run any application, allows you to explore the container and use the tools manually.
+    docker run --rm -it \
+      --entrypoint "/bin/bash" \
+      timjaanson/media-converter
 EOF
 }
 
