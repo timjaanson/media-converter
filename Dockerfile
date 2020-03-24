@@ -5,10 +5,10 @@ RUN apt-get -yqq update && \
 
 COPY . /converter
 
-WORKDIR /converter
+ENV PATH="/converter:${PATH}"
 
 RUN apt-get -yqq autoremove && \
     apt-get -yqq clean
 
 CMD ["-h"]
-ENTRYPOINT ["/converter/interface"]
+ENTRYPOINT ["interface"]
