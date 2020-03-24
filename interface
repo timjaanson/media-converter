@@ -2,13 +2,19 @@
 set -e
 set -u
 set -o pipefail
-if [ -v setX ]; then
+if [ -v CONVERTER_DEBUG_SET_X ]; then
   set -x
 fi
 
 INPUT_DIR=/input/
 OUTPUT_DIR=/output/
 
+if [ -d $OUTPUT_DIR ]; then
+  OUTPUT_VOLUME=1
+else
+  OUTPUT_VOLUME=0
+  mkdir $OUTPUT_DIR
+fi
 
 debug() {
   if [ -v CONVERTER_DEBUG ]; then
@@ -18,7 +24,44 @@ debug() {
 
 help () {
 cat << EOF
-A bash script to interface applications in timjaanson/media-converter docker container
+Docker container and shell script wrapper for batch converting various types of media files.
+Uses ffmpeg, ImageMagick and common cli tools for converting.
+
+See README.md for help and more examples!
+
+Output:
+By default converted files will be saved to a directory called "output" in the mounted volume.
+To save the files to a different location, mount another volume to the container's "/output" directory:
+  -v /tmp:/output
+In the above example all converted files will be saved to /tmp on the host machine
+
+EXAMPLES:
+
+Video: Convert all files in current working directory to mp4 using ffmpeg
+    docker run --rm \
+      -e APPLICATION=ffmpeg \
+      -v $(pwd):/input \
+      timjaanson/media-converter \
+      -i INPUT_FILE OUTPUT_FILE.mp4
+
+Image: Convert all files in current working directory to png using ImageMagick's convert binary
+    docker run --rm \
+      -e APPLICATION=convert \
+      -v $(pwd):/input \
+      timjaanson/media-converter \
+      INPUT_FILE OUTPUT_FILE.png
+
+base64: Convert all files in current working directory to base64 using linux cli tools
+    docker run --rm \
+      -e APPLICATION=b64 \
+      -v $(pwd):/input \
+      timjaanson/media-converter \
+      INPUT_FILE OUTPUT_FILE.png
+
+interactive: Doesn't run any application, allows you to explore the container and use the tools manually.
+    docker run --rm -it \
+      --entrypoint "/bin/bash" \
+      timjaanson/media-converter
 EOF
 }
 
@@ -44,30 +87,47 @@ parse_arguments() {
   shift "$(($OPTIND -1))"
 }
 
-direct_convert_no_parsing() {
+direct_convert() {
   for file in $INPUT_DIR*; do
     if [ -f "$file" ]; then
       FILENAME_AND_TYPE=$(basename "$file")
-      FILENAME=`echo "$FILENAME_AND_TYPE" | cut -d'.' -f1`
-      
+      FILENAME="${FILENAME_AND_TYPE%.*}"
       ARGS=${ARGS//INPUT_FILE/$file}
       ARGS=${ARGS//OUTPUT_FILE/$OUTPUT_DIR$FILENAME}
-      debug $CONVERTER $ARGS
-      $CONVERTER $ARGS  
+      debug $APPLICATION $ARGS
+      $APPLICATION $ARGS  
     fi
   done
 }
 
+direct_convert_single() {
+  debug $APPLICATION $ARGS
+  $APPLICATION $ARGS
+}
 
-if [ -v CONVERTER ]; then
-  debug "Converting application is manually set to $CONVERTER"
+if [ -v APPLICATION ]; then
+  debug "Converting application is manually set to $APPLICATION"
   ARGS="$@"
-  direct_convert_no_parsing
+  if [ -v NO_BATCH ]; then
+    direct_convert_single
+  else
+    direct_convert
+  fi
+  debug "Conversion done"
 
-  mkdir -p ${INPUT_DIR}output
-  mv $OUTPUT_DIR* ${INPUT_DIR}output
+  if [ $OUTPUT_VOLUME -eq 1 ]; then
+    debug "Volume attached to $OUTPUT_DIR, leaving converted files there!"
+  else
+    debug "Moving output files to final destination"
+    mkdir -p ${INPUT_DIR}output
+    mv $OUTPUT_DIR* ${INPUT_DIR}output
+  fi
+
+  debug "All done!"
 else
-  debug "Converting application not set with env variable CONVERTER"
+  debug "Converting application not set with env variable APPLICATION"
   debug "parsing arguments..."
-  parse_arguments
+  parse_arguments $@
+
+  debug "All done!"
 fi
