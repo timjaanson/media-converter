@@ -1,13 +1,14 @@
 FROM jrottenberg/ffmpeg:latest
 
 RUN apt-get -yqq update && \
-    apt-get -y install imagemagick
+    apt-get -yqq --no-install-recommends install imagemagick
 
 COPY . /converter
 
 WORKDIR /converter
 
-RUN chmod +x interface
+RUN apt-get -yqq autoremove && \
+    apt-get -yqq clean
 
 CMD ["-h"]
 ENTRYPOINT ["/converter/interface"]
