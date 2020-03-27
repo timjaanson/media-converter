@@ -1,0 +1,82 @@
+#!/bin/bash
+set -e
+set -u
+set -o pipefail
+
+help() {
+  echo "Usage:"
+  echo "$(basename $0) [options] /path/to/input_file /path/to/output_file"
+}
+
+if [[ $# -eq 0 ]]; then
+    echo "No arguments supplied!"
+    help
+    exit 0
+fi
+
+output_mode="b64"
+
+while getopts 'o:h' OPTION; do
+  case "$OPTION" in
+  o)
+    output_mode="$OPTARG"
+    ;;
+
+  h)
+    help
+    exit 1
+    ;;
+
+  *)
+    help
+    exit 1
+    ;;
+
+  esac
+done
+shift "$(($OPTIND - 1))"
+
+convert() {
+  encoded=$(base64 "$input_path" | tr -d '\n')
+}
+
+convert_css() {
+  fonts=("woff" "woff2" "ttf" "otf" "sfnt")
+  encoded=$(base64 "$input_path")
+  extension="${filename##*.}"
+  if [[ " ${fonts[@]} " =~ " ${extension} " ]]; then
+    data="data:font/$extension;base64,$encoded"
+    if [ $extension == "ttf" ];then
+      uri="url(\"$data\") format(\"truetype\")"
+    elif [ $extension == "otf" ];then
+      uri="url(\"$data\") format(\"opentype\")"
+    else
+      uri="url(\"$data\") format(\"$extension\")"
+    fi
+  elif [ $extension == "svg" ]; then
+    data="data:image/svg+xml;base64,$encoded"
+    uri="url(\"$data\")"
+  else
+    data="data:image/$extension;base64,$encoded"
+    uri="url(\"$data\")"
+  fi
+  uri=$(echo $uri | tr -d '\n')
+}
+
+input_path="$1"
+output_path="$2"
+
+if [ -f "$input_path" ]; then
+  echo "Converting $input_path"
+  filename=$(basename -- "$input_path")
+  if [[ $output_mode == "css" ]]; then
+    convert_css
+    output="$uri"
+  else
+    convert
+    output=$encoded
+  fi
+  echo "$output" > "$output_path"
+else
+  echo "$input_path isn't a file or it doesn't exist"
+fi

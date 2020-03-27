@@ -51,12 +51,12 @@ Image: Convert all files in current working directory to png using ImageMagick's
       timjaanson/media-converter \
       INPUT_FILE OUTPUT_FILE.png
 
-base64: Convert all files in current working directory to base64 using linux cli tools
+base64: Convert all files in current working directory to base64 css url() format using linux cli tools. 
     docker run --rm \
       -e APPLICATION=b64 \
       -v $(pwd):/input \
       timjaanson/media-converter \
-      INPUT_FILE OUTPUT_FILE.png
+      -o css INPUT_FILE OUTPUT_FILE.txt
 
 interactive: Doesn't run any application, allows you to explore the container and use the tools manually.
     docker run --rm -it \
@@ -92,10 +92,10 @@ direct_convert() {
     if [ -f "$file" ]; then
       FILENAME_AND_TYPE=$(basename "$file")
       FILENAME="${FILENAME_AND_TYPE%.*}"
-      ARGS=${ARGS//INPUT_FILE/$file}
-      ARGS=${ARGS//OUTPUT_FILE/$OUTPUT_DIR$FILENAME}
-      debug $APPLICATION $ARGS
-      $APPLICATION $ARGS  
+      APP_ARGS=${ARGS//INPUT_FILE/$file}
+      APP_ARGS=${APP_ARGS//OUTPUT_FILE/$OUTPUT_DIR$FILENAME}
+      debug $APPLICATION $APP_ARGS
+      $APPLICATION $APP_ARGS
     fi
   done
 }
