@@ -1,4 +1,4 @@
-FROM jrottenberg/ffmpeg:latest as build
+FROM jrottenberg/ffmpeg:latest
 
 RUN apt-get -yqq update && \
     apt-get -yqq --no-install-recommends install curl perl build-essential libltdl-dev ghostscript pkgconf libjpeg-dev libpng-dev libtiff-dev libwebp-dev libraw-dev libjxr-dev
