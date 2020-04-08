@@ -65,6 +65,36 @@ interactive: Doesn't run any application, allows you to explore the container an
 EOF
 }
 
+ARGUMENT_ARRAY=()
+arguments_to_array() {
+    local concat=""
+    local t=""
+    ARGUMENT_ARRAY=()
+
+    for word in $@; do
+        local len=`expr "$word" : '.*"'`
+
+        [ "$len" -eq 1 ] && concat="true"
+
+        if [ "$concat" ]; then
+            t+=" $word"
+        else
+            word=${word#\"}
+            word=${word%\"}
+            ARGUMENT_ARRAY+=("$word")
+        fi
+
+        if [ "$concat" -a "$len" -gt 1 ]; then
+            t=${t# }
+            t=${t#\"}
+            t=${t%\"}
+            ARGUMENT_ARRAY+=("$t")
+            t=""
+            concat=""
+        fi
+    done
+}
+
 parse_arguments() {
   while getopts 'a:h' OPTION; do
     case "$OPTION" in
@@ -90,12 +120,15 @@ parse_arguments() {
 direct_convert() {
   for file in $INPUT_DIR*; do
     if [ -f "$file" ]; then
-      FILENAME_AND_TYPE=$(basename "$file")
-      FILENAME="${FILENAME_AND_TYPE%.*}"
-      APP_ARGS=${ARGS//INPUT_FILE/$file}
-      APP_ARGS=${APP_ARGS//OUTPUT_FILE/$OUTPUT_DIR$FILENAME}
-      debug $APPLICATION $APP_ARGS
-      $APPLICATION $APP_ARGS
+      debug "File: $file"
+      filename_and_type=$(basename "$file")
+      filename="${filename_and_type%.*}"
+      app_args=$(echo "$ARGS" | sed "s~INPUT_FILE~\"$file\"~g")
+      app_args=$(echo "$app_args" | sed "s~OUTPUT_FILE~\"$OUTPUT_DIR$filename~g")
+      app_args="$app_args\""
+      arguments_to_array $app_args
+      debug $APPLICATION "${ARGUMENT_ARRAY[@]}"
+      $APPLICATION "${ARGUMENT_ARRAY[@]}"
     fi
   done
 }
