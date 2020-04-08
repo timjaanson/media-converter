@@ -12,7 +12,7 @@ RUN apt-get -yqq update && \
 
 FROM base as build
 
-ENV MAKE_FLAGS="-j 2"
+ENV MAKE_FLAGS="-j 15"
 ENV BUILD_DEPS="autoconf \
                 automake \
                 build-essential \
@@ -32,6 +32,7 @@ ENV BUILD_DEPS="autoconf \
                 libopus-dev \
                 libpng-dev \
                 libraw-dev \
+                librsvg2-dev \
                 libssl-dev \
                 libtheora-dev \
                 libtiff-dev \
@@ -41,6 +42,7 @@ ENV BUILD_DEPS="autoconf \
                 libwebp-dev \
                 libx264-dev \
                 libx265-dev \
+                libxml2-dev \
                 nasm \
                 perl \
                 pkgconf \
@@ -80,7 +82,7 @@ WORKDIR /tmp/workdir
 RUN curl -O https://imagemagick.org/download/ImageMagick.tar.gz && \
     mkdir imagemagick && tar xzf ImageMagick.tar.gz -C imagemagick --strip-components 1
 WORKDIR /tmp/workdir/imagemagick
-RUN ./configure
+RUN ./configure --with-rsvg
 RUN make ${MAKE_FLAGS}
 RUN make install
 
