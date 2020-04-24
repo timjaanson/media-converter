@@ -12,7 +12,7 @@ RUN apt-get -yqq update && \
 
 FROM base as build
 
-ENV MAKE_FLAGS="-j 15"
+ENV MAKE_FLAGS="-j 2"
 ENV BUILD_DEPS="autoconf \
                 automake \
                 build-essential \
@@ -59,21 +59,21 @@ RUN curl -O https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2 && \
     mkdir ffmpeg && tar xjvf ffmpeg-snapshot.tar.bz2 -C ffmpeg --strip-components 1
 WORKDIR /tmp/workdir/ffmpeg
 RUN ./configure \
-  --disable-debug \
-  --disable-doc \
-  --disable-ffplay \  
-  --enable-gpl \
-  --enable-libass \
-  --enable-libfdk-aac \
-  --enable-libfreetype \
-  --enable-libmp3lame \
-  --enable-libopus \
-  --enable-libvorbis \
-  --enable-libvpx \
-  --enable-openssl \
-  --enable-libx264 \
-  --enable-libx265 \
-  --enable-nonfree
+        --disable-debug \
+        --disable-doc \
+        --disable-ffplay \
+        --enable-gpl \
+        --enable-libass \
+        --enable-libfdk-aac \
+        --enable-libfreetype \
+        --enable-libmp3lame \
+        --enable-libopus \
+        --enable-libvorbis \
+        --enable-libvpx \
+        --enable-openssl \
+        --enable-libx264 \
+        --enable-libx265 \
+        --enable-nonfree
 RUN make ${MAKE_FLAGS}
 RUN make install
 
@@ -82,7 +82,9 @@ WORKDIR /tmp/workdir
 RUN curl -O https://imagemagick.org/download/ImageMagick.tar.gz && \
     mkdir imagemagick && tar xzf ImageMagick.tar.gz -C imagemagick --strip-components 1
 WORKDIR /tmp/workdir/imagemagick
-RUN ./configure --with-rsvg
+RUN ./configure \
+        --disable-dependency-tracking \
+        --disable-docs
 RUN make ${MAKE_FLAGS}
 RUN make install
 
