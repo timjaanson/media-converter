@@ -14,9 +14,7 @@ FROM base as build
 
 ENV MAKE_FLAGS="-j 2"
 ENV BUILD_DEPS="autoconf \
-                automake \
                 build-essential \
-                cmake \
                 curl \
                 ghostscript \
                 libass-dev \
