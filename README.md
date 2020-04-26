@@ -1,7 +1,7 @@
 # media-converter
 Docker container for batch converting media files.
 
-Based on jrottenberg/ffmpeg Docker container. Includes ffmpeg and ImageMagick with a shell script wrapper to handle batch conversion.
+Based on Ubuntu:18.04. Includes FFmpeg and ImageMagick with a shell script wrapper to handle batch conversion.
 
 # Run examples
 
@@ -49,6 +49,16 @@ docker run --rm \
     -v $(pwd):/input \
     timjaanson/media-converter \
     INPUT_FILE OUTPUT_FILE.png
+```
+
+### Base64 encode
+* Convert all files in current working directory to base64 CSS3 url() format using linux cli tools.
+```
+docker run --rm \
+      -e APPLICATION=b64 \
+      -v $(pwd):/input \
+      timjaanson/media-converter \
+      -o css INPUT_FILE OUTPUT_FILE.txt
 ```
 
 ### No application, run it interactively
