@@ -38,29 +38,29 @@ In the above example all converted files will be saved to /tmp on the host machi
 EXAMPLES:
 
 Video: Convert all files in current working directory to mp4 using ffmpeg
-    docker run --rm \
-      -e APPLICATION=ffmpeg \
-      -v $(pwd):/input \
-      timjaanson/media-converter \
+    docker run --rm \\
+      -e APPLICATION=ffmpeg \\
+      -v \$(pwd):/input \\
+      timjaanson/media-converter \\
       -i INPUT_FILE OUTPUT_FILE.mp4
 
 Image: Convert all files in current working directory to png using ImageMagick's convert binary
-    docker run --rm \
-      -e APPLICATION=convert \
-      -v $(pwd):/input \
-      timjaanson/media-converter \
+    docker run --rm \\
+      -e APPLICATION=convert \\
+      -v \$(pwd):/input \\
+      timjaanson/media-converter \\
       INPUT_FILE OUTPUT_FILE.png
 
 base64: Convert all files in current working directory to base64 css url() format using linux cli tools. 
-    docker run --rm \
-      -e APPLICATION=b64 \
-      -v $(pwd):/input \
-      timjaanson/media-converter \
+    docker run --rm \\
+      -e APPLICATION=b64 \\
+      -v \$(pwd):/input \\
+      timjaanson/media-converter \\
       -o css INPUT_FILE OUTPUT_FILE.txt
 
 interactive: Doesn't run any application, allows you to explore the container and use the tools manually.
-    docker run --rm -it \
-      --entrypoint "/bin/bash" \
+    docker run --rm -it \\
+      --entrypoint "/bin/bash" \\
       timjaanson/media-converter
 EOF
 }
