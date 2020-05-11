@@ -38,29 +38,29 @@ In the above example all converted files will be saved to /tmp on the host machi
 EXAMPLES:
 
 Video: Convert all files in current working directory to mp4 using ffmpeg
-    docker run --rm \
-      -e APPLICATION=ffmpeg \
-      -v $(pwd):/input \
-      timjaanson/media-converter \
+    docker run --rm \\
+      -e APPLICATION=ffmpeg \\
+      -v \$(pwd):/input \\
+      timjaanson/media-converter \\
       -i INPUT_FILE OUTPUT_FILE.mp4
 
 Image: Convert all files in current working directory to png using ImageMagick's convert binary
-    docker run --rm \
-      -e APPLICATION=convert \
-      -v $(pwd):/input \
-      timjaanson/media-converter \
+    docker run --rm \\
+      -e APPLICATION=convert \\
+      -v \$(pwd):/input \\
+      timjaanson/media-converter \\
       INPUT_FILE OUTPUT_FILE.png
 
 base64: Convert all files in current working directory to base64 css url() format using linux cli tools. 
-    docker run --rm \
-      -e APPLICATION=b64 \
-      -v $(pwd):/input \
-      timjaanson/media-converter \
+    docker run --rm \\
+      -e APPLICATION=b64 \\
+      -v \$(pwd):/input \\
+      timjaanson/media-converter \\
       -o css INPUT_FILE OUTPUT_FILE.txt
 
 interactive: Doesn't run any application, allows you to explore the container and use the tools manually.
-    docker run --rm -it \
-      --entrypoint "/bin/bash" \
+    docker run --rm -it \\
+      --entrypoint "/bin/bash" \\
       timjaanson/media-converter
 EOF
 }
@@ -122,6 +122,7 @@ direct_convert() {
     if [ -f "$file" ]; then
       debug "File: $file"
       filename_and_type=$(basename "$file")
+      echo "Converting $filename_and_type"
       filename="${filename_and_type%.*}"
       app_args=$(echo "$ARGS" | sed "s~INPUT_FILE~\"$file\"~g")
       app_args=$(echo "$app_args" | sed "s~OUTPUT_FILE~\"$OUTPUT_DIR$filename~g")
@@ -140,21 +141,24 @@ direct_convert_single() {
 
 if [ -v APPLICATION ]; then
   debug "Converting application is manually set to $APPLICATION"
+  
+  if [ $OUTPUT_VOLUME -eq 1 ]; then
+    debug "Volume attached to $OUTPUT_DIR, not moving $OUTPUT_DIR!"
+  else
+    debug "Setting up output folder"
+    mkdir -p ${INPUT_DIR}output
+    OUTPUT_DIR=${INPUT_DIR}output/
+  fi
+  
   ARGS="$@"
   if [ -v NO_BATCH ]; then
+    debug "Starting single file conversion!"
     direct_convert_single
   else
+    debug "Starting batch conversion"
     direct_convert
   fi
   debug "Conversion done"
-
-  if [ $OUTPUT_VOLUME -eq 1 ]; then
-    debug "Volume attached to $OUTPUT_DIR, leaving converted files there!"
-  else
-    debug "Moving output files to final destination"
-    mkdir -p ${INPUT_DIR}output
-    mv $OUTPUT_DIR* ${INPUT_DIR}output
-  fi
 
   debug "All done!"
 else

@@ -24,12 +24,12 @@ while getopts 'o:h' OPTION; do
 
   h)
     help
-    exit 1
+    exit
     ;;
 
   *)
     help
-    exit 1
+    exit
     ;;
 
   esac
@@ -41,24 +41,69 @@ convert() {
 }
 
 convert_css() {
-  fonts=("woff" "woff2" "ttf" "otf" "sfnt")
+  # otf ttf woff woff2
+  font_types=("OpenType font data" "TrueType Font data" "Web Open Font Format" "Web Open Font Format (Version 2)")
+  # svg png jpg gif tif webp
+  image_types=("SVG Scalable Vector Graphics image" "PNG image data" "JPEG image data" "GIF image data" "TIFF image data" "RIFF (little-endian) data")
   encoded=$(base64 "$input_path")
-  extension="${filename##*.}"
-  if [[ " ${fonts[@]} " =~ " ${extension} " ]]; then
-    data="data:font/$extension;base64,$encoded"
-    if [ $extension == "ttf" ];then
-      uri="url(\"$data\") format(\"truetype\")"
-    elif [ $extension == "otf" ];then
-      uri="url(\"$data\") format(\"opentype\")"
-    else
-      uri="url(\"$data\") format(\"$extension\")"
-    fi
-  elif [ $extension == "svg" ]; then
-    data="data:image/svg+xml;base64,$encoded"
+  filetype=$(file $input_path -b | cut -d ',' -f 1)
+  if [[ " ${image_types[@]} " =~ " ${filetype} " ]]; then
+    case "$filetype" in
+
+      "SVG Scalable Vector Graphics image")
+        data="data:image/svg+xml;base64,$encoded"
+        ;;
+
+      "PNG image data")
+        data="data:image/png;base64,$encoded"
+        ;;
+
+      "JPEG image data")
+        data="data:image/jpg;base64,$encoded"
+        ;;
+
+      "GIF image data")
+        data="data:image/gif;base64,$encoded"
+        ;;
+
+      "TIFF image data")
+        data="data:image/tif;base64,$encoded"
+        ;;
+
+      "RIFF (little-endian) data")
+        data="data:image/webp;base64,$encoded"
+        ;;
+
+    esac
+
     uri="url(\"$data\")"
+  elif [[ " ${font_types[@]} " =~ " ${filetype} " ]]; then
+    case "$filetype" in
+
+      "OpenType font data")
+        data="data:font/otf;base64,$encoded"
+        uri="url(\"$data\") format(\"opentype\")"
+        ;;
+
+      "TrueType Font data")
+        data="data:font/ttf;base64,$encoded"
+        uri="url(\"$data\") format(\"truetype\")"
+        ;;
+
+      "Web Open Font Format")
+        data="data:font/woff;base64,$encoded"
+        uri="url(\"$data\") format(\"woff\")"
+        ;;
+      
+      "Web Open Font Format (Version 2)")
+        data="data:font/woff2;base64,$encoded"
+        uri="url(\"$data\") format(\"woff2\")"
+        ;;
+
+    esac
   else
-    data="data:image/$extension;base64,$encoded"
-    uri="url(\"$data\")"
+    echo "unsupported file type for CSS url() format: $filetype" 1>&2
+    exit 1
   fi
   uri=$(echo $uri | tr -d '\n')
 }
