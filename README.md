@@ -113,7 +113,7 @@ docker run --rm \
 # Building the container yourself
 Before building the container, it is recommended to increase `MAKE_FLAGS=-j` value in the Dockerfile to potentially speed up compilation of FFmpeg and ImageMagick. However, this is not necessary.
 
-A safe value would be *\<number of available CPU threads> + 1*, i.e. with 4 available threads: `MAKE_FLAGS="-j 5"`.
+A safe value would be **\<number of available CPU threads> + 1**, i.e. with 4 available threads: `MAKE_FLAGS="-j 5"`
 
 
 To actually build the container, use
