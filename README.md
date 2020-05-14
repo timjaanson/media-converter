@@ -109,3 +109,21 @@ docker run --rm \
     timjaanson/media-converter \
     -i INPUT_FILE OUTPUT_FILE.mp4
 ```
+
+# Building the container yourself
+Before building the container, it is recommended to increase `MAKE_FLAGS=-j` value in the Dockerfile to potentially speed up compilation of FFmpeg and ImageMagick. However, this is not necessary.
+
+A safe value would be **\<number of available CPU threads> + 1**, i.e. with 4 available threads: `MAKE_FLAGS="-j 5"`
+
+
+To actually build the container, use
+```
+docker build -t timjaanson/media-converter .
+```
+when at the root of the project repository
+
+# ARM support
+This container also works on ARM based devices like a Raspberry PI.
+
+Currently there aren't any available pre-built ARM images, so you need to build the container yourself.
+See the section "Building the container yourself" for more info.
